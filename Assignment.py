@@ -23,6 +23,14 @@ def skip_gutenberg_header(fp):
         if line.startswith('*** START OF THIS PROJECT'):
             break
 
+def total_words(hist):
+    """Returns the total of the frequencies in a histogram."""
+    return sum(hist.values())     
+
+def different_words(hist):
+    """Returns the number of different words in a histogram."""
+    return len(hist)
+
 def most_common_10(hist):
     """Makes a list of word-freq pairs in descending order of frequency.
     hist: map from word to frequency
@@ -85,12 +93,19 @@ def Similarity_Test(text1, text2):
 
 def main():
     print('Text Analysis of "Flatland" and "Treasure Island"')
+    
     hist1 = process_file('Flatland.txt', skip_header = True)
     hist2 = process_file('Treasure_Island.txt',skip_header = True)
+    print('Total number of words of "Flatland":', total_words(hist1))
+    print('Number of different words of "Flatland":', different_words(hist1))
+    print('Total number of words of "Treasure Island":', total_words(hist2))
+    print('Number of different words of "Treasure Island":', different_words(hist2))
+    
     most_common1 = most_common_10(hist1)
     most_common2 = most_common_10(hist2)
     print('The top ten words in "Flatland" is :', most_common1)
     print('The top ten words in "Treasure Island" is :', most_common2)
+    
     difference = different_word(most_common1,most_common2)
     print("Difference words between two books' top 10 words are:",difference)
     text1 = process_word(hist1)
