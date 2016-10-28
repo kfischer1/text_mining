@@ -27,7 +27,7 @@ def total_words(hist):
     """Returns the total of the frequencies in a histogram."""
     return sum(hist.values())     
 
-def different_words(hist):
+def total_different_words(hist):
     """Returns the number of different words in a histogram."""
     return len(hist)
 
@@ -97,9 +97,9 @@ def main():
     hist1 = process_file('Flatland.txt', skip_header = True)
     hist2 = process_file('Treasure_Island.txt',skip_header = True)
     print('Total number of words of "Flatland":', total_words(hist1))
-    print('Number of different words of "Flatland":', different_words(hist1))
+    print('Number of different words of "Flatland":', total_different_words(hist1))
     print('Total number of words of "Treasure Island":', total_words(hist2))
-    print('Number of different words of "Treasure Island":', different_words(hist2))
+    print('Number of different words of "Treasure Island":', total_different_words(hist2))
     
     most_common1 = most_common_10(hist1)
     most_common2 = most_common_10(hist2)
