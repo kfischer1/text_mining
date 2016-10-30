@@ -1,5 +1,6 @@
 import random, string, nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 def process_file(filename, skip_header):
     hist = {}
@@ -90,7 +91,17 @@ def Similarity_Test(text1, text2):
     #multipe the vector by its transpose to get the Similarity score
     return ((tfidf * tfidf.T).A)[0,1]
 
+def Sentiment_Analysis(text):
+    score = SentimentIntensityAnalyzer().polarity_scores(text)
+    print(score)
 
+
+hist2 = process_file('Treasure_Island.txt',skip_header = True)
+text2 = process_word(hist2)
+Sentiment_Analysis(text2)
+
+
+'''
 def main():
     print('Text Analysis of "Flatland" and "Treasure Island"')
     
@@ -115,4 +126,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+'''
