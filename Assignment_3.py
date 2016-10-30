@@ -1,28 +1,20 @@
-import random
-import string
+import random, string, nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 def process_file(filename, skip_header):
-    """Makes a histogram that contains the words from a file.
-    filename: string
-    skip_header: boolean, whether to skip the Gutenberg header
-    returns: map from each word to the number of times it appears.
-    """
     hist = {}
-    fp = open(filename)                                         #opens the file wanted to use
-
+    fp = open(filename)
     if skip_header:
         skip_gutenberg_header(fp)
-
     for line in fp:
         if line.startswith('*** END OF THIS PROJECT'):
             break
-        for word in line.split():               # splits line into list of words
+        for word in line.split():
             word = word.lower()
-            #update the histogram
-            hist[word] = hist.get(word, 0) + 1      # histogram of words 
-
+            hist[word] = hist.get(word,0) + 1 
     return hist
-print(process_file('A3_test_file.txt', skip_header= False))
+
 
 def skip_gutenberg_header(fp):
     """Reads from fp until it finds the line that ends the header.
@@ -32,22 +24,15 @@ def skip_gutenberg_header(fp):
         if line.startswith('*** START OF THIS PROJECT'):
             break
 
-
 def total_words(hist):
     """Returns the total of the frequencies in a histogram."""
-    return sum(hist.values())        #returns number of words in the histogram (total)
+    return sum(hist.values())     
 
-# For testing
-hist = process_file('A3_test_file.txt', skip_header = False)
-# print(total_words(hist))
-
-def different_words(hist):
+def total_different_words(hist):
     """Returns the number of different words in a histogram."""
     return len(hist)
-# For testing
-# print(different_words(hist))
 
-def most_common(hist):
+def most_common_10(hist):
     """Makes a list of word-freq pairs in descending order of frequency.
     hist: map from word to frequency
     returns: list of (frequency, word) pairs
@@ -58,156 +43,87 @@ def most_common(hist):
 
     temp.sort()                 #sorts smallest to largest
     temp.reverse()              # reverses list to read most frequent to least
-    return temp
-#For testing
-common_word_list= most_common(hist)
-# print(common_word_list[:10])                    #prints the ten most common words
+    top_10 = temp [:10]
+    return top_10
 
-def print_most_common(hist, num=10):
-    """Prints the most commons words in a histgram and their frequencies.
-    hist: histogram (map from word to frequency)
-    num: number of words to print
-    """
-    t = most_common(hist)
-    print('The most common words are:')
-    for freq, word in t[:num]:
-        print(word, '\t', freq)
-
-
-def random_word(hist):
-    """Chooses a random word from a histogram.
-    The probability of each word is proportional to its frequency.
-    """
-    temp = []
-    for word, frequency in hist.items:
-        temp.extend([word] * frequency)
-    return random.choice(temp)
+def different_word(book_1_top10,book_2_top10):
+    '''
+    book_1_top10,book_2_top10: the top 10 most frequent words in each book
+    returns: list of words that appear the top 10 in each text that don't appear in other texts
+    '''
+    book_1_word = []
+    book_2_word = []
+    difference = []
+    #convert dict to list, store the each book's top 10 words in a list 
+    for frequency,word in book_1_top10:
+        book_1_word.append(word)
+    for frequency,word in book_2_top10:
+        book_2_word.append(word)
+    #add the different word in a new list
+    for word in book_1_word:
+        if word not in book_2_word:
+            difference.append(word)
+    return difference
 
 
-def main():
-    hist = process_file('treasure_island.txt', skip_header=True)
-    print('Total number of words:', total_words(hist))
-    print('Number of different words:', different_words(hist))
-
-    t = most_common(hist)
-    print('The most common words are:')
-    for freq, word in t[0:20]:
-        print(word, '\t', freq)
-
-    words = process_file('A3_test_file.txt', skip_header=False)
-
-
-    print("\n\nHere are some random words from the book")
-    for i in range(100):
-        print(random_word(hist), end=' ')
+def process_word(hist):
+    #define a list to store words
+    word_list = []
+    #add all the words of a book to the list 
+    for word,frequency in hist.items():
+        n = 0
+        while n < frequency:
+            word_list.append(word)
+            n += 1
+    #covert the list to string, because the function Similarity_Test only takes string
+    word_string = ' '.join(word_list)
+    return word_string
 
 
-if __name__ == '__main__':
-=======
-import random
-import string
+def Similarity_Test(text1, text2):
+    '''
+    text1, text2: two strings that contains each book's total words
+    return: similarity score of the two books
+    '''
+    #convert all the words of two books to a vector, except for the stop words
+    vectorizer = TfidfVectorizer(stop_words= 'english')    
+    tfidf = vectorizer.fit_transform([text1, text2])
+    #multipe the vector by its transpose to get the Similarity score
+    return ((tfidf * tfidf.T).A)[0,1]
 
-def process_file(filename, skip_header):
-    """Makes a histogram that contains the words from a file.
-    filename: string
-    skip_header: boolean, whether to skip the Gutenberg header
-    returns: map from each word to the number of times it appears.
-    """
-    hist = {}
-    fp = open(filename)                                         #opens the file wanted to use
-
-    if skip_header:
-        skip_gutenberg_header(fp)
-
-    for line in fp:
-        if line.startswith('*** END OF THIS PROJECT'):
-            break
-        for word in line.split():               # splits line into list of words
-            word = word.lower()
-            #update the histogram
-            hist[word] = hist.get(word, 0) + 1      # histogram of words 
-
-    return hist
-print(process_file('A3_test_file.txt', skip_header= False))
-
-def skip_gutenberg_header(fp):
-    """Reads from fp until it finds the line that ends the header.
-    fp: open file object
-    """
-    for line in fp:
-        if line.startswith('*** START OF THIS PROJECT'):
-            break
-
-
-def total_words(hist):
-    """Returns the total of the frequencies in a histogram."""
-    return sum(hist.values())        #returns number of words in the histogram (total)
-
-# For testing
-hist = process_file('A3_test_file.txt', skip_header = False)
-# print(total_words(hist))
-
-def different_words(hist):
-    """Returns the number of different words in a histogram."""
-    return len(hist)
-# For testing
-# print(different_words(hist))
-
-def most_common(hist):
-    """Makes a list of word-freq pairs in descending order of frequency.
-    hist: map from word to frequency
-    returns: list of (frequency, word) pairs
-    """
-    temp = []
-    for word, frequency in hist.items():
-        temp.append((frequency, word))              #sorts by first element, so put freq first for order
-
-    temp.sort()                 #sorts smallest to largest
-    temp.reverse()              # reverses list to read most frequent to least
-    return temp
-#For testing
-common_word_list= most_common(hist)
-# print(common_word_list[:10])                    #prints the ten most common words
-
-def print_most_common(hist, num=10):
-    """Prints the most commons words in a histgram and their frequencies.
-    hist: histogram (map from word to frequency)
-    num: number of words to print
-    """
-    t = most_common(hist)
-    print('The most common words are:')
-    for freq, word in t[:num]:
-        print(word, '\t', freq)
-
-
-def random_word(hist):
-    """Chooses a random word from a histogram.
-    The probability of each word is proportional to its frequency.
-    """
-    temp = []
-    for word, frequency in hist.items:
-        temp.extend([word] * frequency)
-    return random.choice(temp)
+def Sentiment_Analysis(text):
+    score = SentimentIntensityAnalyzer().polarity_scores(text)
+    #return the polarity score of the text
+    return score
 
 
 def main():
-    hist = process_file('treasure_island.txt', skip_header=True)
-    print('Total number of words:', total_words(hist))
-    print('Number of different words:', different_words(hist))
+    print('Text Analysis of "Flatland" and "Treasure Island"')
+    
+    hist1 = process_file('Flatland.txt', skip_header = True)
+    hist2 = process_file('Treasure_Island.txt',skip_header = True)
+    print('Total number of words of "Flatland":', total_words(hist1))
+    print('Number of different words of "Flatland":', total_different_words(hist1))
+    print('Total number of words of "Treasure Island":', total_words(hist2))
+    print('Number of different words of "Treasure Island":', total_different_words(hist2))
+    
+    most_common1 = most_common_10(hist1)
+    most_common2 = most_common_10(hist2)
+    print('The top ten words in "Flatland" is :', most_common1)
+    print('The top ten words in "Treasure Island" is :', most_common2)
+    
+    difference = different_word(most_common1,most_common2)
+    print("Difference words between two books' top 10 words are:",difference)
+    text1 = process_word(hist1)
+    text2 = process_word(hist2)
+    similarity = Similarity_Test(text1,text2)
+    print('Similarity of the two books is:',similarity)
 
-    t = most_common(hist)
-    print('The most common words are:')
-    for freq, word in t[0:20]:
-        print(word, '\t', freq)
-
-    words = process_file('A3_test_file.txt', skip_header=False)
-
-
-    print("\n\nHere are some random words from the book")
-    for i in range(100):
-        print(random_word(hist), end=' ')
-
+    hist3 = process_file('A3_test_file.txt',skip_header = True)
+    text3 = process_word(hist2)
+    score = Sentiment_Analysis(text3)
+    print('the polarity score for Treasure Island test file is:',score)
 
 if __name__ == '__main__':
->>>>>>> origin/master
     main()
+
