@@ -120,7 +120,7 @@ def main():
     print('Similarity of the two books is:',similarity)
 
     hist3 = process_file('A3_test_file.txt',skip_header = True)
-    text3 = process_word(hist2)
+    text3 = process_word(hist3)
     score = Sentiment_Analysis(text3)
     print('the polarity score for Treasure Island test file is:',score)
 
