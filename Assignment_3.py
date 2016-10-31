@@ -32,6 +32,7 @@ def total_different_words(hist):
     """Returns the number of different words in a histogram."""
     return len(hist)
 
+
 def most_common_10(hist):
     """Makes a list of word-freq pairs in descending order of frequency.
     hist: map from word to frequency
